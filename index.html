@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A little something for you 💌</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg1: #ffe9f1;
+    --bg2: #fbc8dc;
+    --paper: #fff7fa;
+    --env-back: #ec9cba;
+    --env-left: #f6b9d0;
+    --env-right: #f2abc6;
+    --env-bottom: #f9cde0;
+    --env-flap-top: #fddbe8;
+    --env-flap-bottom: #f7bcd2;
+    --text: #a8527a;
+    --ease: cubic-bezier(.22, .8, .3, 1);
+    --w: min(88vw, 480px);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    min-height: 100dvh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 1.6rem;
+    padding: 1rem;
+    background: radial-gradient(circle at 30% 20%, var(--bg1), var(--bg2));
+    font-family: 'Dancing Script', 'Segoe Script', cursive;
+    color: var(--text);
+    overflow: hidden;
+  }
+
+  /* floating hearts in the background */
+  .hearts { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  .hearts span {
+    position: absolute; bottom: -40px;
+    opacity: 0;
+    color: #fff;
+    animation: floatUp linear infinite;
+  }
+  @keyframes floatUp {
+    0%   { transform: translateY(0) scale(.8); opacity: 0; }
+    15%  { opacity: .55; }
+    100% { transform: translateY(-110vh) scale(1.2); opacity: 0; }
+  }
+  .hearts span:nth-child(1) { left: 8%;  font-size: 22px; animation-duration: 14s; animation-delay: 0s; }
+  .hearts span:nth-child(2) { left: 22%; font-size: 14px; animation-duration: 11s; animation-delay: 3s; }
+  .hearts span:nth-child(3) { left: 40%; font-size: 26px; animation-duration: 16s; animation-delay: 6s; }
+  .hearts span:nth-child(4) { left: 58%; font-size: 16px; animation-duration: 12s; animation-delay: 1.5s; }
+  .hearts span:nth-child(5) { left: 74%; font-size: 24px; animation-duration: 15s; animation-delay: 4.5s; }
+  .hearts span:nth-child(6) { left: 90%; font-size: 15px; animation-duration: 13s; animation-delay: 8s; }
+
+  .stage {
+    position: relative; z-index: 1;
+    width: var(--w);
+    padding-top: calc(var(--w) * 0.36);
+  }
+
+  .envelope {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    filter: drop-shadow(0 18px 24px rgba(168, 82, 122, .28));
+  }
+  .envelope:focus-visible { outline: 3px solid #fff; outline-offset: 6px; border-radius: 10px; }
+
+  .back {
+    position: absolute; inset: 0;
+    background: var(--env-back);
+    border-radius: 8px;
+  }
+
+  /* The letter (holds the YouTube player) */
+  .letter {
+    position: absolute;
+    left: 5%; right: 5%; bottom: 5%;
+    height: 90%;
+    background: linear-gradient(180deg, #fff, var(--paper));
+    border-radius: 6px;
+    padding: 2.8%;
+    z-index: 2;
+    box-shadow: 0 2px 10px rgba(168, 82, 122, .2);
+    transition: transform 1s var(--ease) .45s;
+    will-change: transform;
+  }
+  .letter iframe {
+    width: 100%; height: 100%;
+    display: block;
+    border: 0;
+    border-radius: 3px;
+    background: #2b1620;
+    pointer-events: none;   /* let clicks reach the envelope, not the iframe */
+  }
+  /* ...but make the player clickable once it is fullscreen */
+  .letter:fullscreen iframe,
+  .letter:-webkit-full-screen iframe,
+  .letter.fake-fs iframe { pointer-events: auto; }
+  .envelope.open .letter { transform: translate3d(0, -58%, 0); }
+
+  /* Front pocket */
+  .front { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+  .front i { position: absolute; inset: 0; border-radius: 8px; }
+  .front .l { background: linear-gradient(90deg, var(--env-left), #f9c6da);
+              clip-path: polygon(0 0, 52% 56%, 0 100%); }
+  .front .r { background: linear-gradient(270deg, var(--env-right), #f7bcd2);
+              clip-path: polygon(100% 0, 48% 56%, 100% 100%); }
+  .front .b { background: linear-gradient(0deg, var(--env-bottom), #fbd9e7);
+              clip-path: polygon(0 100%, 50% 45%, 100% 100%); }
+
+  /* Flap */
+  .flap {
+    position: absolute; left: 0; right: 0; top: 0;
+    height: 56%;
+    z-index: 5;
+    transform-origin: 50% 0;
+    transform: perspective(1400px) rotateX(0deg);
+    transition: transform .7s var(--ease), z-index 0s linear .35s;
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    pointer-events: none;
+  }
+  .flap::before {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, var(--env-flap-top), var(--env-flap-bottom));
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    border-radius: 8px 8px 0 0;
+  }
+  .envelope.open .flap { transform: perspective(1400px) rotateX(180deg); z-index: 1; }
+
+  /* Wax-style heart seal */
+  .seal {
+    position: absolute; left: 50%; top: 56%;
+    width: 13%; aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    z-index: 6;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #ff7fae, #d93a78 70%);
+    color: #fff;
+    font-size: clamp(14px, 4.5vw, 24px);
+    box-shadow: 0 3px 8px rgba(120, 20, 60, .35), inset 0 -2px 4px rgba(0,0,0,.15);
+    transition: opacity .3s ease, scale .4s var(--ease);
+    animation: beat 2.2s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes beat { 0%, 100% { scale: 1; } 50% { scale: 1.1; } }
+  .envelope.open .seal { opacity: 0; scale: .6; animation: none; }
+
+  .hint {
+    position: relative; z-index: 1;
+    margin: 0;
+    font-size: clamp(1.2rem, 4.5vw, 1.7rem);
+    text-align: center;
+    transition: opacity .4s ease;
+  }
+  .hint.fade { opacity: 0; }
+
+  /* Real fullscreen (the letter itself goes fullscreen) */
+  .letter:fullscreen, .letter:-webkit-full-screen {
+    width: 100%; height: 100%;
+    padding: 0; border-radius: 0;
+    background: #000;
+    transform: none !important;
+  }
+  .letter:fullscreen iframe, .letter:-webkit-full-screen iframe { border-radius: 0; }
+
+  /* Fallback "fullscreen" if the browser blocks the real one (e.g. iPhone) */
+  .letter.fake-fs {
+    position: fixed; inset: 0;
+    width: 100vw; height: 100dvh;
+    padding: 0; border-radius: 0;
+    background: #000;
+    transform: none !important;
+    transition: none;
+    z-index: 9999;
+  }
+  .letter.fake-fs iframe { border-radius: 0; }
+  .close-fs {
+    display: none;
+    position: fixed; top: 14px; right: 14px;
+    z-index: 10000;
+    width: 44px; height: 44px;
+    border-radius: 50%; border: 0;
+    background: rgba(255,255,255,.9);
+    color: var(--text);
+    font-size: 20px; line-height: 1; cursor: pointer;
+  }
+  .close-fs.show { display: block; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hearts, .seal { animation: none; }
+    .letter, .flap { transition-duration: .01s; transition-delay: 0s; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="hearts" aria-hidden="true">
+    <span>♥</span><span>♥</span><span>♥</span><span>♥</span><span>♥</span><span>♥</span>
+  </div>
+
+  <div class="stage">
+    <div class="envelope" id="env" role="button" tabindex="0" aria-label="Open the envelope and play the video">
+      <div class="back"></div>
+      <div class="letter" id="letter">
+        <!-- The YouTube player is added here when the envelope opens -->
+        <iframe id="yt"
+                title="Video"
+                allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+                allowfullscreen
+                referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      </div>
+      <div class="front"><i class="l"></i><i class="r"></i><i class="b"></i></div>
+      <div class="flap"></div>
+      <div class="seal" aria-hidden="true">♥</div>
+    </div>
+  </div>
+
+  <p class="hint" id="hint">Tap the envelope to open 💌</p>
+  <button class="close-fs" id="closeFs" aria-label="Close">✕</button>
+
+<script>
+  // YouTube video ID (from https://www.youtube.com/watch?v=khQYDlR6eeo)
+  const VIDEO_ID = 'khQYDlR6eeo';
+  // Must be the /embed/ URL, not the /watch URL, or YouTube refuses to connect
+  const VIDEO_SRC = 'https://www.youtube.com/embed/' + VIDEO_ID +
+    '?autoplay=1&rel=0&playsinline=1&modestbranding=1';
+
+  const env = document.getElementById('env');
+  const letter = document.getElementById('letter');
+  const yt = document.getElementById('yt');
+  const hint = document.getElementById('hint');
+  const closeFs = document.getElementById('closeFs');
+  let timer, busy = false;
+
+  const fsElement = () => document.fullscreenElement || document.webkitFullscreenElement;
+
+  async function goFullscreen() {
+    // Load the video now (this is after a tap, so autoplay is allowed)
+    yt.src = VIDEO_SRC;
+    try {
+      if (letter.requestFullscreen)            await letter.requestFullscreen();
+      else if (letter.webkitRequestFullscreen) await letter.webkitRequestFullscreen();
+      else throw new Error('no fullscreen');
+    } catch (err) {
+      letter.classList.add('fake-fs');   // CSS fallback
+      closeFs.classList.add('show');
+    }
+  }
+
+  function closeEnvelope() {
+    clearTimeout(timer);
+    letter.classList.remove('fake-fs');
+    closeFs.classList.remove('show');
+    if (fsElement()) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    yt.removeAttribute('src');          // stops the video
+    env.classList.remove('open');
+    hint.textContent = 'Tap the envelope to open 💌';
+    hint.classList.remove('fade');
+    busy = true; setTimeout(() => busy = false, 700);
+  }
+
+  function toggle() {
+    if (busy) return;
+    if (!env.classList.contains('open')) {
+      env.classList.add('open');
+      hint.classList.add('fade');
+      busy = true;
+      timer = setTimeout(() => { busy = false; goFullscreen(); }, 1500); // after the letter has slid out
+    } else {
+      closeEnvelope();
+    }
+  }
+
+  env.addEventListener('click', toggle);
+  env.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+  });
+
+  closeFs.addEventListener('click', closeEnvelope);
+
+  // Leaving fullscreen (Esc / back gesture) closes the envelope again
+  const onFsChange = () => { if (!fsElement() && env.classList.contains('open') && !letter.classList.contains('fake-fs')) closeEnvelope(); };
+  document.addEventListener('fullscreenchange', onFsChange);
+  document.addEventListener('webkitfullscreenchange', onFsChange);
+</script>
+</body>
+</html>
